@@ -1,6 +1,6 @@
 """
 App that uses Keras Facenet to detect faces
-Labeled images of faces need to be in 'images' folder
+Labeled images of faces need to be in the 'data/images' folder
 Optionally record a video and send an email upon face detection
 Works with in-built webcam as well as mobile IP cam
 Press 'q' to quit camera
@@ -13,7 +13,7 @@ import sys
 from utils import *
 
 
-FACE_RECOGNITION = False  # activate TensorFlow model to recognize faces
+FACE_RECOGNITION = True  # activate TensorFlow model to recognize faces
 RECORDING = False
 EMAIL_NOTIFICATION = False
 MOBILE_IP = '192.168.0.59'  # default local IP shown in UI

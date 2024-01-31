@@ -9,7 +9,7 @@ import os
 import time
 import urllib.error
 import urllib.request
-from model.facenet_keras import face_encoder
+from model import face_encoder
 from send_email import send_email_notification
 
 
@@ -22,7 +22,7 @@ def resource_path(relative_path):
 
 
 def get_encodings_for_known_faces():
-    face_dir = resource_path('images')
+    face_dir = resource_path('data/images')
     d = {}
     for image_path in os.listdir(face_dir):
         img = load_image_from_file(os.path.join(face_dir, image_path))
@@ -145,5 +145,5 @@ def start_recording(frame, email):
     return out
 
 
-FACE_CASCADE = cv2.CascadeClassifier(resource_path('model/haarcascade_frontalface_default.xml'))
+FACE_CASCADE = cv2.CascadeClassifier(resource_path('haarcascade_frontalface_default.xml'))
 KNOWN_FACES = get_encodings_for_known_faces()

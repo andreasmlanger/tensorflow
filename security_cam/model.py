@@ -2,7 +2,6 @@
 Architecture of Keras Facenet model
 """
 
-
 from keras.layers import Conv2D, GlobalAveragePooling2D, MaxPooling2D
 from keras.layers import Activation, BatchNormalization, Concatenate, Dense, Dropout, Input, Lambda
 from keras.layers import add
@@ -13,11 +12,9 @@ import urllib.request
 
 WEIGHTS_FILE = 'facenet_keras_weights.h5'
 URL_TO_WEIGHTS_FILE = f'https://raw.githubusercontent.com/D2KLab/FaceRec/master/model/{WEIGHTS_FILE}'
-ABS_WEIGHTS_PATH = 'E:/models/tensorflow/'
-LOC_WEIGHTS_PATH = 'model'  # for stand-alone exe
+WEIGHTS_PATH = 'E:/models/tensorflow/'
 
-weights_path = ABS_WEIGHTS_PATH if os.path.exists(ABS_WEIGHTS_PATH) else LOC_WEIGHTS_PATH
-path_to_weights_file = os.path.join(weights_path, WEIGHTS_FILE)
+path_to_weights_file = os.path.join(WEIGHTS_PATH, WEIGHTS_FILE) if os.path.exists(WEIGHTS_PATH) else WEIGHTS_FILE
 
 if not os.path.exists(path_to_weights_file):
 	print(f'Downloading weights from {URL_TO_WEIGHTS_FILE}')
@@ -527,12 +524,13 @@ def create_inception_resnet_v2():
 	# Classification block
 	x = GlobalAveragePooling2D(name='AvgPool')(x)
 	x = Dropout(1.0 - 0.8, name='Dropout')(x)
+
 	# Bottleneck
 	x = Dense(128, use_bias=False, name='Bottleneck')(x)
 	x = BatchNormalization(momentum=0.995, epsilon=0.001, scale=False, name='Bottleneck_BatchNorm')(x)
 
 	# Create model
-	model = Model(inputs, x, name='inception_resnet_v1')
+	model = Model(inputs, x, name='inception_resnet_v2')
 
 	return model
 

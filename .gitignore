@@ -1,1 +1,4 @@
 __pycache__/
+.env
+security_cam/images
+security_cam/recordings

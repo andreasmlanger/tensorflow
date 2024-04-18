@@ -6,22 +6,28 @@ from PIL import ImageOps
 from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QColor, QIcon, QPainter, QPixmap
 from PyQt6.QtWidgets import QApplication, QLabel, QMainWindow, QPushButton, QWidget, QHBoxLayout, QVBoxLayout
+import os
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
 
-CLASS_NAMES = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+def get_class_names(dataset):
+    if dataset == 'mnist':
+        return ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+    else:
+        return ['T-shirt', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Boot']
 
 
-def show_random_image(images, labels):
+def show_random_image(images, labels, class_names):
     plt.figure()
     idx = random.randint(0, images.shape[0])
     plt.imshow(images[idx])
     plt.colorbar()
-    plt.title(CLASS_NAMES[labels[idx]])
+    plt.title(class_names[labels[idx]])
     plt.grid(False)
     plt.show()
 
 
-def show_first_25_images(images, labels):
+def show_first_25_images(images, labels, class_names):
     plt.figure(figsize=(7, 7))
     for i in range(25):
         plt.subplot(5, 5, i + 1)
@@ -29,10 +35,45 @@ def show_first_25_images(images, labels):
         plt.yticks([])
         plt.grid(False)
         plt.imshow(images[i])
-        plt.xlabel(CLASS_NAMES[labels[i]])
+        plt.xlabel(class_names[labels[i]])
 
     plt.tight_layout()
     plt.show()
+
+
+def show_predictions(model, images, labels, class_names):
+    while True:
+        idx = random.randint(0, images.shape[0] - 1)
+        img = images[idx]
+        prediction = model.predict((np.expand_dims(img, 0)))
+
+        plt.figure(figsize=(9, 4))
+        plt.subplot(1, 2, 1)
+        plt.grid(False)
+        plt.xticks([])
+        plt.yticks([])
+
+        plt.imshow(img)
+
+        predicted_label = int(np.argmax(prediction))
+
+        plt.title('{} ({:2.0f}%)'.format(class_names[predicted_label], 100 * np.max(prediction)))
+        plt.xlabel('Actual Item: {}'.format(class_names[labels[idx]]))
+
+        plt.subplot(1, 2, 2)
+
+        plt.grid(False)
+        plt.xticks(range(10), class_names, rotation=45)
+        plt.yticks([])
+        plt.ylim([0, 1])
+
+        this_plot = plt.bar(range(10), prediction[0], color='darkslategray')
+        this_plot[predicted_label].set_color('crimson')
+        this_plot[labels[idx]].set_color('steelblue')
+
+        plt.tight_layout()
+
+        plt.show()
 
 
 def start_application(model):
@@ -135,8 +176,10 @@ def start_application(model):
 
             self.initialize_plot()
 
+            class_names = get_class_names('mnist')
+
             plt.imshow(image)
-            plt.title('Prediction: {}'.format(CLASS_NAMES[predicted_label]))
+            plt.title('Prediction: {}'.format(class_names[predicted_label]))
             plt.show()
 
         def mouseMoveEvent(self, e):

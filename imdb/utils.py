@@ -1,8 +1,9 @@
 from bs4 import BeautifulSoup
-import string
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud, STOPWORDS
-
+import os
+import string
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
 TABLE = str.maketrans('', '', string.punctuation)  # !"#$%&'()*+,-./:;<=>?@[\]^_`{|}~
 

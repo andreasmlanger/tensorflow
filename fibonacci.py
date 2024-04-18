@@ -2,12 +2,11 @@
 Tensorflow NN to predict the Fibonacci sequence
 """
 
+import keras
 import numpy as np
-import tensorflow as tf
-from tensorflow import keras
 
 
-MODEL_PATH = 'E:/models/tensorflow/fibonacci'
+MODEL_PATH = 'E:/models/fibonacci.keras'
 EPOCHS = 500
 
 
@@ -21,9 +20,9 @@ def generate_fibonacci_series(n=100):
 
 
 try:
-    model = tf.keras.models.load_model(MODEL_PATH)
+    model = keras.models.load_model(MODEL_PATH)
 
-except OSError:
+except ValueError:
     fibonacci = generate_fibonacci_series()
 
     # Create normalized X and y
@@ -31,8 +30,11 @@ except OSError:
     y = fibonacci[1:] / fibonacci[-1]
 
     # Build the model
-    model = keras.Sequential([keras.layers.Dense(units=1, input_shape=[1])])
-    optimizer = tf.keras.optimizers.SGD(learning_rate=0.5)
+    model = keras.Sequential([
+        keras.layers.Input(shape=[1]),
+        keras.layers.Dense(units=1)
+    ])
+    optimizer = keras.optimizers.SGD(learning_rate=0.5)
 
     # Compile the model
     model.compile(optimizer=optimizer, loss='mean_squared_error')
@@ -51,7 +53,8 @@ def test_model(m):
     while True:
         try:
             n = float(input('Enter a number: '))
-            prediction = m.predict([n])[0][0].round()
+            x = np.expand_dims(np.array([n]), axis=0)
+            prediction = m.predict(x)[0][0].round()
             print('Prediction of next Fibonacci number:', int(prediction))
         except ValueError:
             print('No valid number!')

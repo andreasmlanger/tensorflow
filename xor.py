@@ -2,12 +2,11 @@
 Tensorflow NN for XOR: 1 if one value is < 0.5 and the other > 0.5, else 0
 """
 
+import keras
 import numpy as np
-import tensorflow as tf
-from tensorflow import keras
 
 
-MODEL_PATH = 'E:/models/tensorflow/xor'
+MODEL_PATH = 'E:/models/xor.keras'
 EPOCHS = 10
 
 
@@ -19,14 +18,15 @@ def generate_random_xor_data(n=100000):
 
 
 try:
-    model = tf.keras.models.load_model(MODEL_PATH)
+    model = keras.models.load_model(MODEL_PATH)
 
-except OSError:
+except ValueError:
     X, y = generate_random_xor_data()
 
     # Build the model
     model = keras.Sequential([
-        keras.layers.Dense(128, input_dim=2, activation='relu'),
+        keras.layers.Input(shape=(2,)),
+        keras.layers.Dense(128, activation='relu'),
         keras.layers.Dense(1, activation='sigmoid')
     ])
 
@@ -44,7 +44,8 @@ while True:
     try:
         t = input('Enter (x, y) tuple, e.g. 0.3, 0.6: ')
         a, b = map(float, t.split(','))
-        prediction = model.predict([[a, b]])[0][0]
+        x = np.expand_dims(np.array([a, b]), axis=0)
+        prediction = model.predict(x)[0][0]
         print('XOR prediction:', int(round(prediction, 0)))
     except ValueError:
         print('No valid tuple!')

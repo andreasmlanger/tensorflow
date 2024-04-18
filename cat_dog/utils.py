@@ -1,9 +1,11 @@
-from keras.utils import img_to_array, load_img
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
-import random
 import os
+import random
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+
+from keras.utils import img_to_array, load_img
 
 
 def make_predictions(model, size, test_dir, class_names):

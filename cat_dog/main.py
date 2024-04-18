@@ -4,19 +4,17 @@ For training, download images from https://www.kaggle.com/c/dogs-vs-cats
 Move images into 'cat' and 'dog' folders in 'training' and 'validation' directories
 """
 
+from utils import *
+import keras
 from keras.applications.inception_v3 import InceptionV3
-from keras.preprocessing import image
 import tensorflow as tf
-from tensorflow import keras
-import os
-from utils import make_predictions
 
 print(f'TF version: {tf.__version__}')
 
 DATASET = 'cat_dog'  # cat & dog images
 
-# NN = 'CNN'  # convolutional neural network (~92.0%)
-NN = 'tCNN'  # convolutional neural network using transfer learning (~98.8%)
+# NN = 'CNN'  # convolutional neural network (~91.0%)
+NN = 'tCNN'  # convolutional neural network using transfer learning (~98.9%)
 
 EPOCHS = 20 if NN == 'CNN' else 3
 SIZE = 128 if NN == 'CNN' else 224  # image size in pixels
@@ -27,10 +25,10 @@ TRAINING_DIR = os.path.join(BASE_DIR, 'train')
 VALIDATION_DIR = os.path.join(BASE_DIR, 'validation')
 TEST_DIR = os.path.join(BASE_DIR, 'test')
 
-MODEL_PATH = f'E:/models/tensorflow/{DATASET}_{NN}'
+MODEL_PATH = f'E:/models/{DATASET}_{NN}.keras'
 
 # Create validation data generator
-validation_generator = image.ImageDataGenerator(
+validation_generator = tf.keras.preprocessing.image.ImageDataGenerator(
     rescale=1/255
 ).flow_from_directory(
     VALIDATION_DIR,
@@ -46,11 +44,11 @@ try:
 
     # Evaluate the model (optional)
     scores = model.evaluate(validation_generator)
-    print("Accuracy: %.2f%%" % (scores[1] * 100))
+    print('Accuracy: %.2f%%' % (scores[1] * 100))
 
-except OSError:
+except ValueError:
     # Create training data generator
-    training_generator = image.ImageDataGenerator(
+    training_generator = tf.keras.preprocessing.image.ImageDataGenerator(
         rescale=1/255,
         rotation_range=10,
         width_shift_range=0.2,
@@ -66,12 +64,11 @@ except OSError:
     )
 
     # Build the model
-    if NN == 'InceptionV3':
+    if NN == 'tCNN':
         base = InceptionV3(input_shape=(SIZE, SIZE, 3), include_top=False, weights='imagenet')
         for layer in base.layers:
             layer.trainable = False  # freeze entire network
         last_layer = base.get_layer('mixed7')  # crop pretrained model here
-        print(f'Output shape: {last_layer.output_shape}')
         x = last_layer.output
         x = keras.layers.Flatten()(x)  # flatten to 1 dimension
         x = keras.layers.Dense(1024, activation='relu')(x)  # add fully connected layer with 1024 hidden units
@@ -80,7 +77,8 @@ except OSError:
 
     else:  # CNN
         model = keras.models.Sequential([
-            keras.layers.Conv2D(16, (3, 3), activation='relu', input_shape=(SIZE, SIZE, 3)),
+            keras.layers.InputLayer(shape=(SIZE, SIZE, 3)),
+            keras.layers.Conv2D(16, (3, 3), activation='relu'),
             keras.layers.MaxPooling2D(2, 2),
             keras.layers.Conv2D(32, (3, 3), activation='relu'),
             keras.layers.MaxPooling2D(2, 2),
